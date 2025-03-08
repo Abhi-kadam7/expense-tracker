@@ -23,7 +23,7 @@ const transactionReducer = (state, action) => {
 };
 
 // Backend API URL
-const API_BASE_URL = "http://localhost:5000/api/transactions"; // Update if deployed
+const API_BASE_URL = "https://expense-tracker-1-srnn.onrender.com/api/transactions"; // Update if deployed
 
 // Provider component
 export const TransactionProvider = ({ children }) => {
