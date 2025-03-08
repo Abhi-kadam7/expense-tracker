@@ -22,11 +22,8 @@ const transactionReducer = (state, action) => {
   }
 };
 
-// ✅ Dynamic API URL for local & production
-const API_BASE_URL =
-  window.location.hostname === "localhost"
-    ? "http://localhost:5000/api/transactions"
-    : "https://your-backend.onrender.com/api/transactions"; // 🔹 Replace with actual Render URL
+// ✅ Use environment variable for API URL (defined in `.env` file)
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api/transactions";
 
 // Provider component
 export const TransactionProvider = ({ children }) => {
@@ -36,11 +33,12 @@ export const TransactionProvider = ({ children }) => {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const res = await fetch(API_BASE_URL);
+        const res = await fetch(API_BASE_URL, { credentials: "include" });
+        if (!res.ok) throw new Error(`Failed to fetch: ${res.statusText}`);
         const data = await res.json();
         dispatch({ type: "SET_TRANSACTIONS", payload: data });
       } catch (error) {
-        console.error("Error fetching transactions:", error);
+        console.error("❌ Error fetching transactions:", error);
       }
     };
 
@@ -53,29 +51,33 @@ export const TransactionProvider = ({ children }) => {
       const res = await fetch(API_BASE_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(transaction),
       });
+      if (!res.ok) throw new Error(`Failed to add transaction: ${res.statusText}`);
       const data = await res.json();
       dispatch({ type: "ADD_TRANSACTION", payload: data });
     } catch (error) {
-      console.error("Error adding transaction:", error);
+      console.error("❌ Error adding transaction:", error);
     }
   };
 
   // Delete transaction
   const deleteTransaction = async (id) => {
     try {
-      await fetch(`${API_BASE_URL}/${id}`, { method: "DELETE" });
+      const res = await fetch(`${API_BASE_URL}/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error(`Failed to delete transaction: ${res.statusText}`);
       dispatch({ type: "DELETE_TRANSACTION", payload: id });
     } catch (error) {
-      console.error("Error deleting transaction:", error);
+      console.error("❌ Error deleting transaction:", error);
     }
   };
 
   return (
-    <TransactionContext.Provider
-      value={{ transactions: state.transactions, addTransaction, deleteTransaction }}
-    >
+    <TransactionContext.Provider value={{ transactions: state.transactions, addTransaction, deleteTransaction }}>
       {children}
     </TransactionContext.Provider>
   );

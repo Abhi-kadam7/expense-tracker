@@ -5,31 +5,21 @@ import connectDB from "./config/db.js";
 import transactionRoutes from "./routes/transactionRoutes.js";
 import errorHandler from "./middleware/errorMiddleware.js";
 
-// Load environment variables
 dotenv.config();
-
-// Connect to MongoDB
 connectDB();
 
 const app = express();
 
-// ✅ Dynamic CORS Configuration
+// ✅ Allow Vercel Frontend
 const allowedOrigins = [
-  "http://localhost:5173", // Development frontend (Vite)
-  "https://expense-tracker-lwo0n52ev-expense-trackers-projects-3f794ac3.vercel.app", // ✅ Your deployed frontend
+  "http://localhost:5173", // Local frontend (Vite)
+  "https://expense-tracker-h3jgxbt5j-expense-trackers-projects-3f794ac3.vercel.app" // Vercel frontend
 ];
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+    origin: allowedOrigins,
     credentials: true,
-    methods: ["GET", "POST", "DELETE"],
   })
 );
 
@@ -40,6 +30,6 @@ app.use(express.json());
 app.use("/api/transactions", transactionRoutes);
 app.use(errorHandler);
 
-// Start the server
+// Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
