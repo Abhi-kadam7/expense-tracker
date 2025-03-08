@@ -10,34 +10,32 @@ connectDB();
 
 const app = express();
 
-// ✅ Allowed Frontend URLs
+// ✅ Dynamically allow frontend origin
 const allowedOrigins = [
-  "http://localhost:5173", // Local frontend (Vite)
-  "https://expense-tracker-5mjknvfq1-expense-trackers-projects-3f794ac3.vercel.app" // Correct Vercel URL
+  "http://localhost:5173",  // Local frontend
+  "https://expense-tracker-1-2me3.onrender.com", // Update with your actual Vercel frontend URL
 ];
 
-// ✅ CORS Middleware
 app.use(
   cors({
-    origin: (origin, callback) => {
+    origin: function (origin, callback) {
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        console.warn(`❌ Blocked CORS Request from: ${origin}`);
-        callback(new Error("CORS policy does not allow this origin"), false);
+        callback(new Error("Not allowed by CORS"));
       }
     },
-    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+    credentials: true,
   })
 );
 
-// ✅ Middleware
+// Middleware
 app.use(express.json());
 
-// ✅ Routes
+// Routes
 app.use("/api/transactions", transactionRoutes);
 app.use(errorHandler);
 
-// ✅ Start Server
+// Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
