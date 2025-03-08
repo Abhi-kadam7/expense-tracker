@@ -16,13 +16,20 @@ const app = express();
 // ✅ Dynamic CORS Configuration
 const allowedOrigins = [
   "http://localhost:5173", // Development frontend (Vite)
-  "https://expense-tracker-1-2me3.onrender.com", // 🔹 Replace with your deployed frontend URL
+  "https://expense-tracker-lwo0n52ev-expense-trackers-projects-3f794ac3.vercel.app", // ✅ Your deployed frontend
 ];
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
+    methods: ["GET", "POST", "DELETE"],
   })
 );
 
