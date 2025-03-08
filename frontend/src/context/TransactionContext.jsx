@@ -22,11 +22,8 @@ const transactionReducer = (state, action) => {
   }
 };
 
-// ✅ Dynamic API URL for local & production
-const API_BASE_URL =
-  window.location.hostname === "localhost"
-    ? "http://localhost:5000/api/transactions"
-    : "https://expense-tracker-1-2me3.onrender.com/api/transactions"; // 🔹 Replace with actual Render URL
+// Backend API URL
+const API_BASE_URL = "https://expense-tracker-1-2me3.onrender.com/api/transactions"; // Update if deployed
 
 // Provider component
 export const TransactionProvider = ({ children }) => {
