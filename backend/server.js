@@ -9,12 +9,8 @@ dotenv.config();
 connectDB();
 
 const app = express();
-app.use(cors({
-    origin: "https://expense-tracker-bc8keu11w-expense-trackers-projects-3f794ac3.vercel.app/", // Allow only your frontend
-    methods: "GET,POST,DELETE",
-    credentials: true
-  }));
-  app.use(express.json());
+app.use(cors());
+app.use(express.json());
 
 app.use("/api/transactions", transactionRoutes);
 app.use(errorHandler);

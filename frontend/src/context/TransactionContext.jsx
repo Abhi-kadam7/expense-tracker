@@ -23,26 +23,24 @@ const transactionReducer = (state, action) => {
 };
 
 // Backend API URL
-const API_BASE_URL = "https://expense-tracker-1-srnn.onrender.com/api/transactions"; // Update if deployed
+const API_BASE_URL = "http://localhost:5000/api/transactions"; // Update if deployed
 
 // Provider component
 export const TransactionProvider = ({ children }) => {
   const [state, dispatch] = useReducer(transactionReducer, initialState);
 
-  // Fetch transactions from backend
-  const fetchTransactions = async () => {
-    try {
-      const res = await fetch(API_BASE_URL);
-      if (!res.ok) throw new Error("Failed to fetch transactions.");
-      const data = await res.json();
-      dispatch({ type: "SET_TRANSACTIONS", payload: data });
-    } catch (error) {
-      console.error("Error fetching transactions:", error);
-    }
-  };
-
-  // Load transactions on mount
+  // Fetch transactions from backend on load
   useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const res = await fetch(API_BASE_URL);
+        const data = await res.json();
+        dispatch({ type: "SET_TRANSACTIONS", payload: data });
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+      }
+    };
+
     fetchTransactions();
   }, []);
 
@@ -54,9 +52,8 @@ export const TransactionProvider = ({ children }) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(transaction),
       });
-
-      if (!res.ok) throw new Error("Failed to add transaction.");
-      await fetchTransactions(); // Refresh transaction list after adding
+      const data = await res.json();
+      dispatch({ type: "ADD_TRANSACTION", payload: data });
     } catch (error) {
       console.error("Error adding transaction:", error);
     }
@@ -65,10 +62,8 @@ export const TransactionProvider = ({ children }) => {
   // Delete transaction
   const deleteTransaction = async (id) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/${id}`, { method: "DELETE" });
-
-      if (!res.ok) throw new Error("Failed to delete transaction.");
-      await fetchTransactions(); // Refresh transaction list after deleting
+      await fetch(`${API_BASE_URL}/${id}`, { method: "DELETE" });
+      dispatch({ type: "DELETE_TRANSACTION", payload: id });
     } catch (error) {
       console.error("Error deleting transaction:", error);
     }
