@@ -10,33 +10,26 @@ connectDB();
 
 const app = express();
 
-// ✅ Define Allowed Origins (Frontend URLs)
+// ✅ Allowed Frontend URLs
 const allowedOrigins = [
   "http://localhost:5173", // Local frontend (Vite)
-  "https://expense-tracker-h3jgxbt5j-expense-trackers-projects-3f794ac3.vercel.app" // Vercel frontend
+  "https://expense-tracker-5mjknvfq1-expense-trackers-projects-3f794ac3.vercel.app" // Correct Vercel URL
 ];
 
-// ✅ CORS Middleware with Debugging
-app.use((req, res, next) => {
-  const origin = req.get("Origin"); // Get request origin
-  console.log(`🌍 Incoming Request from: ${origin}`);
-
-  if (!origin || allowedOrigins.includes(origin)) {
-    res.header("Access-Control-Allow-Origin", origin);
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    res.header("Access-Control-Allow-Credentials", "true");
-    
-    if (req.method === "OPTIONS") {
-      return res.sendStatus(200); // Handle preflight requests
-    }
-    
-    next();
-  } else {
-    console.warn(`❌ Blocked CORS Request from: ${origin}`);
-    res.status(403).json({ message: "CORS policy does not allow this origin" });
-  }
-});
+// ✅ CORS Middleware
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.warn(`❌ Blocked CORS Request from: ${origin}`);
+        callback(new Error("CORS policy does not allow this origin"), false);
+      }
+    },
+    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+  })
+);
 
 // ✅ Middleware
 app.use(express.json());
