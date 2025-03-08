@@ -29,18 +29,20 @@ const API_BASE_URL = "https://expense-tracker-1-srnn.onrender.com/api/transactio
 export const TransactionProvider = ({ children }) => {
   const [state, dispatch] = useReducer(transactionReducer, initialState);
 
-  // Fetch transactions from backend on load
-  useEffect(() => {
-    const fetchTransactions = async () => {
-      try {
-        const res = await fetch(API_BASE_URL);
-        const data = await res.json();
-        dispatch({ type: "SET_TRANSACTIONS", payload: data });
-      } catch (error) {
-        console.error("Error fetching transactions:", error);
-      }
-    };
+  // Fetch transactions from backend
+  const fetchTransactions = async () => {
+    try {
+      const res = await fetch(API_BASE_URL);
+      if (!res.ok) throw new Error("Failed to fetch transactions.");
+      const data = await res.json();
+      dispatch({ type: "SET_TRANSACTIONS", payload: data });
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    }
+  };
 
+  // Load transactions on mount
+  useEffect(() => {
     fetchTransactions();
   }, []);
 
@@ -52,8 +54,9 @@ export const TransactionProvider = ({ children }) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(transaction),
       });
-      const data = await res.json();
-      dispatch({ type: "ADD_TRANSACTION", payload: data });
+
+      if (!res.ok) throw new Error("Failed to add transaction.");
+      await fetchTransactions(); // Refresh transaction list after adding
     } catch (error) {
       console.error("Error adding transaction:", error);
     }
@@ -62,8 +65,10 @@ export const TransactionProvider = ({ children }) => {
   // Delete transaction
   const deleteTransaction = async (id) => {
     try {
-      await fetch(`${API_BASE_URL}/${id}`, { method: "DELETE" });
-      dispatch({ type: "DELETE_TRANSACTION", payload: id });
+      const res = await fetch(`${API_BASE_URL}/${id}`, { method: "DELETE" });
+
+      if (!res.ok) throw new Error("Failed to delete transaction.");
+      await fetchTransactions(); // Refresh transaction list after deleting
     } catch (error) {
       console.error("Error deleting transaction:", error);
     }
